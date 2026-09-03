@@ -1,56 +1,71 @@
-# Welcome to your Expo app 👋
+# Atelier Maths — app mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Application compagnon (Android pour l'instant) de [atelier-maths](https://github.com/mhpn-TKPY/atelier-maths) :
+un élève photographie sa copie, l'app affiche la lecture par l'IA pour relecture,
+puis envoie la correction au professeur via la même API que le site web.
 
-## Get started
+Aucune logique de correction ici — l'app n'est qu'un client. Le moteur IA, le
+référentiel et les données restent dans `atelier-maths` (Vercel + Supabase).
 
-1. Install dependencies
+## Stack
 
-   ```bash
-   npm install
-   ```
+- Expo SDK 57 / Expo Router / React Native 0.86
+- TypeScript strict
+- `expo-image-picker` pour la capture photo
+- `expo-notifications` pour le jeton push (enregistré côté serveur, envoi à
+  faire côté `atelier-maths` — voir "Notifications" plus bas)
+- `@react-native-async-storage/async-storage` pour mémoriser prénom/email
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Démarrer en local
 
 ```bash
-npm run reset-project
+npm install
+npm run android   # ou: npm run start, puis scanner le QR avec Expo Go
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Par défaut l'app pointe vers le déploiement de prod d'atelier-maths
+(`https://formations-beta-inky.vercel.app`). Pour pointer ailleurs (preview,
+local), copier `.env.example` en `.env` et changer `EXPO_PUBLIC_API_BASE_URL`.
 
-### Other setup steps
+## API consommée
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Toutes les routes vivent dans le dépôt `atelier-maths` :
 
-## Learn more
+| Route | Statut |
+|---|---|
+| `POST /api/lecture` | existante |
+| `POST /api/correction` | existante |
+| `GET /api/chapitres` | **à créer** côté atelier-maths |
+| `POST /api/push-tokens` | **à créer** côté atelier-maths (+ migration `push_tokens`) |
 
-To learn more about developing your project with Expo, look at the following resources:
+Tant que les deux routes manquantes n'existent pas, l'écran d'accueil ne peut
+pas charger la liste des chapitres et l'enregistrement du jeton push échoue
+silencieusement (best-effort, ne bloque jamais l'envoi d'une correction).
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Notifications
 
-## Join the community
+Le jeton Expo Push est demandé et envoyé au backend au moment où l'élève
+valide sa correction (si un email a été renseigné). L'envoi effectif de la
+notification (« ta correction est prête ») reste à brancher côté serveur,
+dans `atelier-maths`, quand le professeur valide une relecture.
 
-Join our community of developers creating universal apps.
+## Build & publication (EAS)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Nécessite un compte Expo (gratuit) et un compte Google Play Console (payant,
+à créer par vous — voir la documentation Play Console). Rien de tout ça n'est
+fait automatiquement.
+
+```bash
+npx eas login
+npx eas build:configure     # crée le projectId EAS, à reporter dans app.json > extra.eas
+npx eas build -p android --profile preview     # APK de test interne
+npx eas build -p android --profile production  # AAB pour Play Console
+npx eas submit -p android                       # une fois le compte Play Console prêt
+```
+
+## Scripts
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm run lint         # expo lint
+```
