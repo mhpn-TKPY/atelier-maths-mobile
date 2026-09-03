@@ -2,6 +2,7 @@
   "expo": {
     "name": "Atelier Maths",
     "slug": "atelier-maths-mobile",
+    "owner": "pyrohp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +16,9 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "permissions": ["CAMERA"]
+      "permissions": [
+        "CAMERA"
+      ]
     },
     "web": {
       "output": "static",
@@ -41,6 +44,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8e76bb03-08c7-4d88-9a7d-03e0c78dbb4d"
+      }
     }
   }
 }
