@@ -2,6 +2,7 @@
   "name": "atelier-maths-mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "start": "expo start",
